@@ -22,7 +22,7 @@
  * +V --> GPIO25
  */
 
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
 #include <rdm6300.h>
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7789
@@ -33,10 +33,8 @@
 #include <Tone32.h>
 
 // WiFi settings
-//const char* ssid = "test";
-//const char* password = "sifra123";
-const char* ssid = "RPi";
-const char* password = "KO3f5QNVG6Q0";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 // NeoPixel
 Adafruit_NeoPixel pixels(1, 15, NEO_GRB + NEO_KHZ800);
 
@@ -189,14 +187,23 @@ void loop() {
         if (httpResponseCode == 200) {
           DynamicJsonDocument doc(1024);
           deserializeJson(doc, payload);
+          String username = doc["user"]["display_name"];
+          String type = doc["type"];
           light(0, 100, 0);
           tone(25, NOTE_C7, 500, 0); // access granted
           noTone(25, 0);
           tft.fillScreen(ST77XX_WHITE);
-          tft.setCursor(9, 25);
-          tft.println(doc["user"]["display_name"]);
-          tft.println(doc["type"]);
-          tft.println("Poštujem!");
+          tft.setCursor(4, 25);
+          for (int i = 0; i < username.length(); i++) {
+            if (username[i] != ' ')
+              tft.print(username[i]);
+            else
+              tft.setCursor(4, 45);
+          }
+          tft.setCursor(4, 65);
+          tft.println(type);
+          tft.setCursor(4, 85);
+          tft.println("Postujem!");
         }
         else {
           light(100, 0, 0);
